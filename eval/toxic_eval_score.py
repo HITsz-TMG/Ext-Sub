@@ -1,12 +1,13 @@
-import os
 import argparse
 import json
+from pathlib import Path
+from typing import Union
+
 from detoxify import Detoxify
-import pandas as pd
 import numpy as np
 
 
-def main(input_path, output_path, checkpoint_path):
+def main(input_path: Union[Path, str], output_path: Union[Path, str], checkpoint_path: Union[Path, str]):
     with open(input_path, "r", encoding="utf-8") as f:
         data = json.load(f)
     

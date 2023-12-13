@@ -1,7 +1,8 @@
 import os
 import argparse
 import json
-from typing import Dict, List, Sequence
+from pathlib import Path
+from typing import Dict, List, Sequence, Union
 from dataclasses import dataclass
 
 import torch
@@ -63,7 +64,7 @@ class DataCollatorForGenerationDataset(object):
         )
 
 
-def batch_llm_generate(data_dict_list, model, tokenizer, batch_size=1, **kwargs):
+def batch_llm_generate(data_dict_list: List[dict], model: AutoModelForCausalLM, tokenizer: AutoTokenizer, batch_size: int = 1, **kwargs):
     generation_dataset = GenerationDataset(data_dict_list)
     dataloader = DataLoader(
         generation_dataset,
@@ -91,7 +92,7 @@ def batch_llm_generate(data_dict_list, model, tokenizer, batch_size=1, **kwargs)
     return results_list
 
 
-def predict(data, model, tokenizer, batch_size=1, generate_num=1):
+def predict(data: List[dict], model: AutoModelForCausalLM, tokenizer: AutoTokenizer, batch_size: int = 1, generate_num: int = 1):
     data_dict_list = []
     for i, obj in enumerate(tqdm(data)):
         if obj.get("obj") is None or len(obj["input"]) == 0:
@@ -119,7 +120,7 @@ def predict(data, model, tokenizer, batch_size=1, generate_num=1):
     return outputs
 
 
-def load_model(model_name_or_path):
+def load_model(model_name_or_path: Union[Path, str]):
     if "lora" in model_name_or_path or "ia3" in model_name_or_path or "prefix" in model_name_or_path:
         config = PeftConfig.from_pretrained(model_name_or_path)
         model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path, torch_dtype=torch.float16, device_map="cpu",)
@@ -142,7 +143,7 @@ def load_model(model_name_or_path):
     return tokenizer, model
 
 
-def main(model_name_or_path, input_path, output_path, batch_size):
+def main(model_name_or_path: Union[Path, str], input_path: Union[Path, str], output_path: Union[Path, str], batch_size: int):
     ## Step 1: Load the tokenizer and model
     tokenizer, model = load_model(model_name_or_path)
 

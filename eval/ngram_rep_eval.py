@@ -1,17 +1,19 @@
 import os
 import argparse
 import json
-from tqdm import tqdm
+from pathlib import Path
+from typing import List, Union
 from collections import defaultdict, Counter
 
 import torch
 import numpy as np
 import pandas as pd
-from transformers import AutoTokenizer
+from tqdm import tqdm
 from nltk import ngrams
+from transformers import AutoTokenizer
 
 
-def ngram_metrics(token_list, pad=-100):
+def ngram_metrics(token_list: List[int], pad: int = -100):
     if pad in token_list:
         token_list = token_list[:token_list.index(pad)]  # remove possible padding
     stats = defaultdict(float)
@@ -22,7 +24,7 @@ def ngram_metrics(token_list, pad=-100):
     return stats
 
 
-def rep_ngram_eval(tokenizer, input_texts):
+def rep_ngram_eval(tokenizer: AutoTokenizer, input_texts: List[str]):
     results = defaultdict(list)
     for text in tqdm(input_texts):
         input_ids = tokenizer(text).input_ids
@@ -32,14 +34,14 @@ def rep_ngram_eval(tokenizer, input_texts):
     return results
 
 
-def load_tokenizer(model_name_or_path):
+def load_tokenizer(model_name_or_path: Union[Path, str]):
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=False, trust_remote_code=True)
     tokenizer.pad_token = tokenizer.pad_token or tokenizer.eos_token
     
     return tokenizer
 
 
-def read_data(input_path):
+def read_data(input_path: Union[Path, str]):
     if os.path.isdir(input_path):
         # TruthfulQA
         df = pd.read_csv(os.path.join(input_path, "prediction.csv"))
@@ -60,7 +62,7 @@ def read_data(input_path):
     return data
 
 
-def main(input_path, output_path, model_name_or_path):
+def main(input_path: Union[Path, str], output_path: Union[Path, str], model_name_or_path: Union[Path, str]):
     tokenizer = load_tokenizer(model_name_or_path)
 
     data = read_data(input_path)

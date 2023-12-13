@@ -5,7 +5,8 @@ import logging
 import json
 import jsonlines
 from dataclasses import dataclass
-from typing import Dict, List, Sequence
+from pathlib import Path
+from typing import Dict, List, Sequence, Union
 
 import torch
 import transformers
@@ -84,7 +85,7 @@ class DataCollatorForSupervisedDataset(object):
         )
     
 
-def calculate_cross_entropy(lm_logits, labels):
+def calculate_cross_entropy(lm_logits: torch.Tensor, labels: torch.LongTensor):
     labels = labels.to(lm_logits.device)
     shift_logits = lm_logits[..., :-1, :].contiguous()
     shift_labels = labels[..., 1:].contiguous()
@@ -97,7 +98,7 @@ def calculate_cross_entropy(lm_logits, labels):
     return loss_list
 
 
-def calculate_loss_list(model, dataloader):
+def calculate_loss_list(model: AutoModelForCausalLM, dataloader: DataLoader):
     loss_list = []
 
     for batch in tqdm(dataloader, desc="computing"):
@@ -177,7 +178,7 @@ def smart_tokenizer_and_embedding_resize(
         output_embeddings[-num_new_tokens:] = output_embeddings_avg
 
 
-def load_models(model_name_or_path):
+def load_models(model_name_or_path: Union[Path, str]):
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=False, trust_remote_code=True)
     tokenizer.padding_side = "left"
     tokenizer.truncation_side = "left"
@@ -212,7 +213,7 @@ def load_models(model_name_or_path):
     return tokenizer, model
 
 
-def read_data(input_path):
+def read_data(input_path: Union[Path, str]):
     qa_data_path = os.path.join(input_path, "qa_data.json")
     summarization_data_path = os.path.join(input_path, "summarization_data.json")
     dialogue_data_path = os.path.join(input_path, "dialogue_data.json")
@@ -257,7 +258,7 @@ def read_data(input_path):
     return qa_true_data, qa_false_data, summarization_true_data, summarization_false_data, dialogue_true_data, dialogue_false_data
 
 
-def get_data_score(data, tokenizer, model, batch_size):
+def get_data_score(data: List[dict], tokenizer: AutoTokenizer, model: AutoModelForCausalLM, batch_size: int):
     dataset = SupervisedDataset(data, tokenizer)
     dataloader = DataLoader(
         dataset,
@@ -271,7 +272,7 @@ def get_data_score(data, tokenizer, model, batch_size):
     return scores
 
 
-def compute_precision(loss_list):
+def compute_precision(loss_list: List[float]):
     true_loss, false_loss = loss_list[:len(loss_list)//2], loss_list[len(loss_list)//2:]
     assert len(true_loss) == len(false_loss)
 
@@ -282,7 +283,7 @@ def compute_precision(loss_list):
     return np.mean(precision)
 
 
-def main(input_path, output_path, model_name_or_path, batch_size=4):
+def main(input_path: Union[Path, str], output_path: Union[Path, str], model_name_or_path: Union[Path, str], batch_size: int = 4):
     qa_true_data, qa_false_data, summarization_true_data, summarization_false_data, dialogue_true_data, dialogue_false_data = read_data(input_path)
     
     tokenizer, model = load_models(model_name_or_path)

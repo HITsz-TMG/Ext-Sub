@@ -1,13 +1,16 @@
 import os
 import shutil
 import argparse
+from pathlib import Path
+from typing import Union, List, Tuple
+
 import torch
 from tqdm import tqdm
 from peft import PeftModel, PeftConfig
 from peft.mapping import PEFT_TYPE_TO_CONFIG_MAPPING
 
 
-def copy_folder(src_folder, dst_folder, except_names=None):
+def copy_folder(src_folder: Union[Path, str], dst_folder: Union[Path, str], except_names: List[str]=None):
     assert src_folder != dst_folder
 
     if not os.path.exists(dst_folder):
@@ -24,7 +27,7 @@ def copy_folder(src_folder, dst_folder, except_names=None):
             shutil.copy2(src_file, dst_file)
 
 
-def lora2full_matrix(input_path, output_path):
+def lora2full_matrix(input_path: Union[Path, str], output_path: Union[Path, str]):
     # Step 1: processing adapter weights
     input_adapter_path = os.path.join(input_path, "adapter_model.bin")
     output_adapter_path = os.path.join(output_path, "adapter_model.bin")
@@ -64,7 +67,7 @@ def lora2full_matrix(input_path, output_path):
     config.save_pretrained(output_path)
 
 
-def merge_lora_weight(input_adapter_path):
+def merge_lora_weight(input_adapter_path: Union[Path, str]) -> Tuple[dict, int]:
     """
     Convert lora Down and Up matrix into a merged matrix and an Identity Matrix
     """
@@ -92,7 +95,7 @@ def merge_lora_weight(input_adapter_path):
     return adapter_weights, r_list[0]
 
 
-def weight_subtraction(input_path_1, input_path_2, alpha, output_path):
+def weight_subtraction(input_path_1: Union[Path, str], input_path_2: Union[Path, str], alpha: float, output_path: Union[Path, str]):
     peft_type = PeftConfig.from_pretrained(input_path_1).peft_type
 
     if peft_type == "LORA":
@@ -135,7 +138,7 @@ def weight_subtraction(input_path_1, input_path_2, alpha, output_path):
         raise NotImplementedError(peft_type)
     
 
-def weigth_addition(input_path_1, input_path_2, alpha, output_path):
+def weigth_addition(input_path_1: Union[Path, str], input_path_2: Union[Path, str], alpha: float, output_path: Union[Path, str]):
     peft_type = PeftConfig.from_pretrained(input_path_1).peft_type
 
     if peft_type == "LORA":
@@ -177,7 +180,7 @@ def weigth_addition(input_path_1, input_path_2, alpha, output_path):
         raise NotImplementedError(peft_type)
 
 
-def weigth_extraction_before_subtraction(input_path_1, input_path_2, alpha, output_path):
+def weigth_extraction_before_subtraction(input_path_1: Union[Path, str], input_path_2: Union[Path, str], alpha: float, output_path: Union[Path, str]):
     peft_type = PeftConfig.from_pretrained(input_path_1).peft_type
 
     if peft_type == "LORA":
