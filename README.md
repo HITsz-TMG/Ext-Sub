@@ -33,7 +33,7 @@ cd training
 bash train_peft.sh
 ```
 
-⚠️ tips: The training code from [Alpaca](https://github.com/tatsu-lab/stanford_alpaca) was leveraged in order to resize the embedding of models, thereby incorporating a pad token. When saving the tokenizer after training, it now includes the pad token, which is not present in the original model (as only the PEMs were saved). To effectively utilize the pad token during testing, it is advisable to either resize the embedding once more or substitute the pad token with an existing token.
+> ⚠️ Note: The training code from [Alpaca](https://github.com/tatsu-lab/stanford_alpaca) was leveraged in order to resize the embedding of models, thereby incorporating a pad token. When saving the tokenizer after training, it now includes the pad token, which is not present in the original model (as only the PEMs were saved). To effectively utilize the pad token during testing, it is advisable to either resize the embedding once more or substitute the pad token with an existing token.
 
 ### :hammer: PEMs Operation
 
