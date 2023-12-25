@@ -23,6 +23,15 @@ conda create -n EXT-SUB python=3.10
 conda activate EXT-SUB
 pip install -r requirements.txt
 ```
+or you can simply copy our conda environment:
+```
+# You should edit the `prefix` parameter to your local conda path in `environment.yaml`.
+conda env create -f environment.yaml
+conda activate ext_sub
+```
+
+The utilization of Parameter-Efficient Modules in this work is based on [PEFT](https://github.com/huggingface/peft). Further information can be available in the [HuggingFace documentation](https://huggingface.co/docs/peft/main/en/index).
+
 
 ### :fire: Train
 
@@ -49,6 +58,10 @@ python ext_sub.py \
 ### :rocket: Load Model
 
 ```
+from transformers import AutoTokenizer, AutoModelForCausalLM
+from peft import PeftConfig, PeftModel
+
+
 model_name_or_path = ""
 
 config = PeftConfig.from_pretrained(model_name_or_path)
