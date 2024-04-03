@@ -6,7 +6,7 @@ from typing import Union, List, Tuple
 
 import torch
 from tqdm import tqdm
-from peft import PeftModel, PeftConfig
+from peft import PeftModel, PeftConfig, load_peft_weights
 from peft.mapping import PEFT_TYPE_TO_CONFIG_MAPPING
 
 
@@ -71,7 +71,7 @@ def merge_lora_weight(input_adapter_path: Union[Path, str]) -> Tuple[dict, int]:
     """
     Convert lora Down and Up matrix into a merged matrix and an Identity Matrix
     """
-    adapter_weights = torch.load(input_adapter_path)
+    adapter_weights = load_peft_weights(input_adapter_path)
 
     r_list = []
     for param_key in tqdm(adapter_weights.keys(), desc="Merging"):
@@ -99,8 +99,8 @@ def weight_subtraction(input_path_1: Union[Path, str], input_path_2: Union[Path,
     peft_type = PeftConfig.from_pretrained(input_path_1).peft_type
 
     if peft_type == "LORA":
-        adapter_weights_1, r_1 = merge_lora_weight(os.path.join(input_path_1, "adapter_model.bin"))
-        adapter_weights_2, r_2 = merge_lora_weight(os.path.join(input_path_2, "adapter_model.bin"))
+        adapter_weights_1, r_1 = merge_lora_weight(input_path_1)
+        adapter_weights_2, r_2 = merge_lora_weight(input_path_2)
         assert r_1 == r_2
 
         for param_key in tqdm(adapter_weights_1.keys(), desc="Subtraction"):
@@ -142,8 +142,8 @@ def weigth_addition(input_path_1: Union[Path, str], input_path_2: Union[Path, st
     peft_type = PeftConfig.from_pretrained(input_path_1).peft_type
 
     if peft_type == "LORA":
-        adapter_weights_1, r_1 = merge_lora_weight(os.path.join(input_path_1, "adapter_model.bin"))
-        adapter_weights_2, r_2 = merge_lora_weight(os.path.join(input_path_2, "adapter_model.bin"))
+        adapter_weights_1, r_1 = merge_lora_weight(input_path_1)
+        adapter_weights_2, r_2 = merge_lora_weight(input_path_2)
         assert r_1 == r_2
 
         for param_key in tqdm(adapter_weights_1.keys(), desc="Addition"):
@@ -184,8 +184,8 @@ def weigth_extraction_before_subtraction(input_path_1: Union[Path, str], input_p
     peft_type = PeftConfig.from_pretrained(input_path_1).peft_type
 
     if peft_type == "LORA":
-        adapter_weights_1, r_1 = merge_lora_weight(os.path.join(input_path_1, "adapter_model.bin"))
-        adapter_weights_2, r_2 = merge_lora_weight(os.path.join(input_path_2, "adapter_model.bin"))
+        adapter_weights_1, r_1 = merge_lora_weight(input_path_1)
+        adapter_weights_2, r_2 = merge_lora_weight(input_path_2)
         assert r_1 == r_2
 
         for param_key in tqdm(adapter_weights_1.keys(), desc="Projection"):
