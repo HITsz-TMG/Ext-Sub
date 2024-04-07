@@ -27,46 +27,6 @@ def copy_folder(src_folder: Union[Path, str], dst_folder: Union[Path, str], exce
             shutil.copy2(src_file, dst_file)
 
 
-def lora2full_matrix(input_path: Union[Path, str], output_path: Union[Path, str]):
-    # Step 1: processing adapter weights
-    input_adapter_path = os.path.join(input_path, "adapter_model.bin")
-    output_adapter_path = os.path.join(output_path, "adapter_model.bin")
-
-    adapter_weights = torch.load(input_adapter_path)
-
-    r = []
-    for param_key, param_value in tqdm(adapter_weights.items(), desc="Converting"):
-        if "lora_B" in param_key:
-            param_key_down = param_key.replace("lora_B", "lora_A")
-            param_key_up= param_key
-
-            data_type = adapter_weights[param_key_down].dtype
-
-            full_matrix = torch.matmul(adapter_weights[param_key_up].to(torch.float32), 
-                                       adapter_weights[param_key_down].to(torch.float32))
-            assert full_matrix.size(0) == full_matrix.size(1)
-            adapter_weights[param_key_down] = torch.eye(full_matrix.size(0), 
-                                                      device=full_matrix.device, 
-                                                      dtype=data_type)
-            adapter_weights[param_key_up] = full_matrix.to(data_type)
-
-            r.append(full_matrix.size(0))
-        
-    assert all(x == r[0] for x in r)
-    
-    torch.save(adapter_weights, output_adapter_path)
-
-    # Step 2: processing config
-    config = PEFT_TYPE_TO_CONFIG_MAPPING[
-                PeftConfig.from_pretrained(input_path).peft_type
-            ].from_pretrained(input_path)
-    scaling = config.lora_alpha / config.r
-    config.r = r[0]
-    config.lora_alpha = scaling * config.r
-
-    config.save_pretrained(output_path)
-
-
 def merge_lora_weight(input_adapter_path: Union[Path, str]) -> Tuple[dict, int]:
     """
     Convert lora Down and Up matrix into a merged matrix and an Identity Matrix
@@ -119,16 +79,16 @@ def weight_subtraction(input_path_1: Union[Path, str], input_path_2: Union[Path,
 
         config.save_pretrained(output_path)
     elif peft_type == "IA3":
-        adapter_weights_1 = torch.load(os.path.join(input_path_1, "adapter_model.bin"))
-        adapter_weights_2 = torch.load(os.path.join(input_path_2, "adapter_model.bin"))
+        adapter_weights_1 = load_peft_weights(input_path_1)
+        adapter_weights_2 = load_peft_weights(input_path_2)
 
         for param_key in tqdm(adapter_weights_1.keys(), desc="Subtraction"):
             adapter_weights_1[param_key] = adapter_weights_1[param_key] + alpha * (2.0 * torch.ones_like(adapter_weights_2[param_key]) - adapter_weights_2[param_key])
         
         torch.save(adapter_weights_1, os.path.join(output_path, "adapter_model.bin"))
     elif peft_type == "PREFIX_TUNING":
-        adapter_weights_1 = torch.load(os.path.join(input_path_1, "adapter_model.bin"))
-        adapter_weights_2 = torch.load(os.path.join(input_path_2, "adapter_model.bin"))
+        adapter_weights_1 = load_peft_weights(input_path_1)
+        adapter_weights_2 = load_peft_weights(input_path_2)
 
         for param_key in tqdm(adapter_weights_1.keys(), desc="Subtraction"):
             adapter_weights_1[param_key] = adapter_weights_1[param_key] - alpha * adapter_weights_2[param_key]
@@ -160,8 +120,8 @@ def weigth_addition(input_path_1: Union[Path, str], input_path_2: Union[Path, st
 
         config.save_pretrained(output_path)
     elif peft_type == "IA3":
-        adapter_weights_1 = torch.load(os.path.join(input_path_1, "adapter_model.bin"))
-        adapter_weights_2 = torch.load(os.path.join(input_path_2, "adapter_model.bin"))
+        adapter_weights_1 = load_peft_weights(input_path_1)
+        adapter_weights_2 = load_peft_weights(input_path_2)
 
         for param_key in tqdm(adapter_weights_1.keys(), desc="Addition"):
             # adapter_weights_1[param_key] = adapter_weights_1[param_key] + alpha * (adapter_weights_2[param_key] - torch.ones_like(adapter_weights_2[param_key]))
@@ -169,8 +129,8 @@ def weigth_addition(input_path_1: Union[Path, str], input_path_2: Union[Path, st
         
         torch.save(adapter_weights_1, os.path.join(output_path, "adapter_model.bin"))
     elif peft_type == "PREFIX_TUNING":
-        adapter_weights_1 = torch.load(os.path.join(input_path_1, "adapter_model.bin"))
-        adapter_weights_2 = torch.load(os.path.join(input_path_2, "adapter_model.bin"))
+        adapter_weights_1 = load_peft_weights(input_path_1)
+        adapter_weights_2 = load_peft_weights(input_path_2)
 
         for param_key in tqdm(adapter_weights_1.keys(), desc="Subtraction"):
             adapter_weights_1[param_key] = adapter_weights_1[param_key] + alpha * adapter_weights_2[param_key]
@@ -216,8 +176,8 @@ def weigth_extraction_before_subtraction(input_path_1: Union[Path, str], input_p
         config.save_pretrained(output_path)
 
     elif peft_type == "IA3":
-        adapter_weights_1 = torch.load(os.path.join(input_path_1, "adapter_model.bin"))
-        adapter_weights_2 = torch.load(os.path.join(input_path_2, "adapter_model.bin"))
+        adapter_weights_1 = load_peft_weights(input_path_1)
+        adapter_weights_2 = load_peft_weights(input_path_2)
         
         for param_key in tqdm(adapter_weights_1.keys(), desc="Projection"):
             squeeze_size = adapter_weights_1[param_key].shape.index(1)
@@ -238,8 +198,8 @@ def weigth_extraction_before_subtraction(input_path_1: Union[Path, str], input_p
         
         torch.save(adapter_weights_1, os.path.join(output_path, "adapter_model.bin"))
     elif peft_type == "PREFIX_TUNING":
-        adapter_weights_1 = torch.load(os.path.join(input_path_1, "adapter_model.bin"))
-        adapter_weights_2 = torch.load(os.path.join(input_path_2, "adapter_model.bin"))
+        adapter_weights_1 = load_peft_weights(input_path_1)
+        adapter_weights_2 = load_peft_weights(input_path_2)
 
         for param_key in adapter_weights_1.keys():
             peft_config = PEFT_TYPE_TO_CONFIG_MAPPING[peft_type].from_pretrained(input_path_1)
