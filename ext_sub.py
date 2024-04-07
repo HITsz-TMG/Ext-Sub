@@ -8,9 +8,15 @@ import torch
 from tqdm import tqdm
 from peft import PeftModel, PeftConfig, load_peft_weights
 from peft.mapping import PEFT_TYPE_TO_CONFIG_MAPPING
+from peft.utils import WEIGHTS_NAME, SAFETENSORS_WEIGHTS_NAME
+from safetensors.torch import save_file as safe_save_file
 
 
-def copy_folder(src_folder: Union[Path, str], dst_folder: Union[Path, str], except_names: List[str]=None):
+def copy_folder(
+        src_folder: Union[Path, str],
+        dst_folder: Union[Path, str],
+        except_names: List[str] = None
+):
     assert src_folder != dst_folder
 
     if not os.path.exists(dst_folder):
@@ -27,7 +33,8 @@ def copy_folder(src_folder: Union[Path, str], dst_folder: Union[Path, str], exce
             shutil.copy2(src_file, dst_file)
 
 
-def merge_lora_weight(input_adapter_path: Union[Path, str]) -> Tuple[dict, int]:
+def merge_lora_weight(
+        input_adapter_path: Union[Path, str]) -> Tuple[dict, int]:
     """
     Convert lora Down and Up matrix into a merged matrix and an Identity Matrix
     """
@@ -55,8 +62,14 @@ def merge_lora_weight(input_adapter_path: Union[Path, str]) -> Tuple[dict, int]:
     return adapter_weights, r_list[0]
 
 
-def weight_subtraction(input_path_1: Union[Path, str], input_path_2: Union[Path, str], alpha: float, output_path: Union[Path, str]):
+def weight_subtraction(
+        input_path_1: Union[Path, str],
+        input_path_2: Union[Path, str],
+        alpha: float,
+        output_path: Union[Path, str]
+):
     peft_type = PeftConfig.from_pretrained(input_path_1).peft_type
+    config = PEFT_TYPE_TO_CONFIG_MAPPING[peft_type].from_pretrained(input_path_1)
 
     if peft_type == "LORA":
         adapter_weights_1, r_1 = merge_lora_weight(input_path_1)
@@ -67,39 +80,45 @@ def weight_subtraction(input_path_1: Union[Path, str], input_path_2: Union[Path,
             if "lora_B" in param_key:
                 adapter_weights_1[param_key] = adapter_weights_1[param_key] - alpha * adapter_weights_2[param_key]
 
-        torch.save(adapter_weights_1, os.path.join(output_path, "adapter_model.bin"))
-
         # Config processing: r, lora_alpha
-        config = PEFT_TYPE_TO_CONFIG_MAPPING[
-                    PeftConfig.from_pretrained(input_path_1).peft_type
-                ].from_pretrained(input_path_1)
         scaling = config.lora_alpha / config.r
         config.r = r_1
         config.lora_alpha = scaling * config.r
-
-        config.save_pretrained(output_path)
     elif peft_type == "IA3":
         adapter_weights_1 = load_peft_weights(input_path_1)
         adapter_weights_2 = load_peft_weights(input_path_2)
 
         for param_key in tqdm(adapter_weights_1.keys(), desc="Subtraction"):
             adapter_weights_1[param_key] = adapter_weights_1[param_key] + alpha * (2.0 * torch.ones_like(adapter_weights_2[param_key]) - adapter_weights_2[param_key])
-        
-        torch.save(adapter_weights_1, os.path.join(output_path, "adapter_model.bin"))
     elif peft_type == "PREFIX_TUNING":
         adapter_weights_1 = load_peft_weights(input_path_1)
         adapter_weights_2 = load_peft_weights(input_path_2)
 
         for param_key in tqdm(adapter_weights_1.keys(), desc="Subtraction"):
             adapter_weights_1[param_key] = adapter_weights_1[param_key] - alpha * adapter_weights_2[param_key]
-        
-        torch.save(adapter_weights_1, os.path.join(output_path, "adapter_model.bin"))
     else:
         raise NotImplementedError(peft_type)
+
+    config.save_pretrained(output_path)
+
+    if os.path.exists(os.path.join(input_path_1, SAFETENSORS_WEIGHTS_NAME)):
+        safe_save_file(
+            adapter_weights_1,
+            os.path.join(output_path, SAFETENSORS_WEIGHTS_NAME),
+            metadata={"format": "pt"},
+        )
+    else:
+        torch.save(adapter_weights_1, os.path.join(output_path, WEIGHTS_NAME))
     
 
-def weigth_addition(input_path_1: Union[Path, str], input_path_2: Union[Path, str], alpha: float, output_path: Union[Path, str]):
+def weigth_addition(
+        input_path_1: Union[Path, str],
+        input_path_2: Union[Path, str],
+        alpha: float,
+        output_path: Union[Path, str]
+):
     peft_type = PeftConfig.from_pretrained(input_path_1).peft_type
+    config = PEFT_TYPE_TO_CONFIG_MAPPING[peft_type].from_pretrained(input_path_1)
 
     if peft_type == "LORA":
         adapter_weights_1, r_1 = merge_lora_weight(input_path_1)
@@ -110,15 +129,10 @@ def weigth_addition(input_path_1: Union[Path, str], input_path_2: Union[Path, st
             if "lora_B" in param_key:
                 adapter_weights_1[param_key] = adapter_weights_1[param_key] + alpha * adapter_weights_2[param_key]
 
-        torch.save(adapter_weights_1, os.path.join(output_path, "adapter_model.bin"))
-
         # Config processing: r, lora_alpha
-        config = PEFT_TYPE_TO_CONFIG_MAPPING[peft_type].from_pretrained(input_path_1)
         scaling = config.lora_alpha / config.r
         config.r = r_1
         config.lora_alpha = scaling * config.r
-
-        config.save_pretrained(output_path)
     elif peft_type == "IA3":
         adapter_weights_1 = load_peft_weights(input_path_1)
         adapter_weights_2 = load_peft_weights(input_path_2)
@@ -126,22 +140,35 @@ def weigth_addition(input_path_1: Union[Path, str], input_path_2: Union[Path, st
         for param_key in tqdm(adapter_weights_1.keys(), desc="Addition"):
             # adapter_weights_1[param_key] = adapter_weights_1[param_key] + alpha * (adapter_weights_2[param_key] - torch.ones_like(adapter_weights_2[param_key]))
             adapter_weights_1[param_key] = adapter_weights_1[param_key] + adapter_weights_2[param_key]
-        
-        torch.save(adapter_weights_1, os.path.join(output_path, "adapter_model.bin"))
     elif peft_type == "PREFIX_TUNING":
         adapter_weights_1 = load_peft_weights(input_path_1)
         adapter_weights_2 = load_peft_weights(input_path_2)
 
         for param_key in tqdm(adapter_weights_1.keys(), desc="Subtraction"):
             adapter_weights_1[param_key] = adapter_weights_1[param_key] + alpha * adapter_weights_2[param_key]
-        
-        torch.save(adapter_weights_1, os.path.join(output_path, "adapter_model.bin"))
     else:
         raise NotImplementedError(peft_type)
 
+    config.save_pretrained(output_path)
 
-def weigth_extraction_before_subtraction(input_path_1: Union[Path, str], input_path_2: Union[Path, str], alpha: float, output_path: Union[Path, str]):
+    if os.path.exists(os.path.join(input_path_1, SAFETENSORS_WEIGHTS_NAME)):
+        safe_save_file(
+            adapter_weights_1,
+            os.path.join(output_path, SAFETENSORS_WEIGHTS_NAME),
+            metadata={"format": "pt"},
+        )
+    else:
+        torch.save(adapter_weights_1, os.path.join(output_path, WEIGHTS_NAME))
+
+
+def weigth_extraction_before_subtraction(
+        input_path_1: Union[Path, str],
+        input_path_2: Union[Path, str],
+        alpha: float,
+        output_path: Union[Path, str]
+):
     peft_type = PeftConfig.from_pretrained(input_path_1).peft_type
+    config = PEFT_TYPE_TO_CONFIG_MAPPING[peft_type].from_pretrained(input_path_1)
 
     if peft_type == "LORA":
         adapter_weights_1, r_1 = merge_lora_weight(input_path_1)
@@ -165,16 +192,10 @@ def weigth_extraction_before_subtraction(input_path_1: Union[Path, str], input_p
                 
                 adapter_weights_1[param_key] = adapter_weights_1[param_key] - alpha * adapter_weights_2[param_key] + alpha * project_weight
 
-        torch.save(adapter_weights_1, os.path.join(output_path, "adapter_model.bin"))
-
         # Config processing: r, lora_alpha
-        config = PEFT_TYPE_TO_CONFIG_MAPPING[peft_type].from_pretrained(input_path_1)
         scaling = config.lora_alpha / config.r
         config.r = r_1
         config.lora_alpha = scaling * config.r
-
-        config.save_pretrained(output_path)
-
     elif peft_type == "IA3":
         adapter_weights_1 = load_peft_weights(input_path_1)
         adapter_weights_2 = load_peft_weights(input_path_2)
@@ -195,8 +216,6 @@ def weigth_extraction_before_subtraction(input_path_1: Union[Path, str], input_p
             merged_delta_weight = (delta_weights_1 - delta_weights_2 + alpha * project_weight).unsqueeze(squeeze_size)
 
             adapter_weights_1[param_key] = merged_delta_weight + torch.ones_like(merged_delta_weight)
-        
-        torch.save(adapter_weights_1, os.path.join(output_path, "adapter_model.bin"))
     elif peft_type == "PREFIX_TUNING":
         adapter_weights_1 = load_peft_weights(input_path_1)
         adapter_weights_2 = load_peft_weights(input_path_2)
@@ -235,10 +254,19 @@ def weigth_extraction_before_subtraction(input_path_1: Union[Path, str], input_p
                     adapter_weights_1[param_key][a, b] = adapter_weights_1[param_key][a, b] - alpha * adapter_weights_2[param_key][a, b] + alpha * project_weight
 
             adapter_weights_1[param_key] = adapter_weights_1[param_key].view(peft_config.num_virtual_tokens, -1)
-        
-        torch.save(adapter_weights_1, os.path.join(output_path, "adapter_model.bin"))
     else:
         raise NotImplementedError(peft_type)
+
+    config.save_pretrained(output_path)
+
+    if os.path.exists(os.path.join(input_path_1, SAFETENSORS_WEIGHTS_NAME)):
+        safe_save_file(
+            adapter_weights_1,
+            os.path.join(output_path, SAFETENSORS_WEIGHTS_NAME),
+            metadata={"format": "pt"},
+        )
+    else:
+        torch.save(adapter_weights_1, os.path.join(output_path, WEIGHTS_NAME))
 
 
 if __name__ == "__main__":
@@ -252,7 +280,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(args)
 
-    copy_folder(args.input_path_1, args.output_path, except_names=["adapter_model.bin"])
+    copy_folder(args.input_path_1, args.output_path, except_names=[WEIGHTS_NAME, SAFETENSORS_WEIGHTS_NAME])
 
     if args.method == "subtraction":
         weight_subtraction(args.input_path_1, args.input_path_2, args.alpha, args.output_path)
