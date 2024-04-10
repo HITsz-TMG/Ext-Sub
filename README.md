@@ -14,6 +14,8 @@
 
 Code for the paper ["Separate the Wheat from the Chaff: Model Deficiency Unlearning via Parameter-Efficient Module Operation"](https://arxiv.org/abs/2308.08090).
 
+
+
 ## :computer: Usage
 
 ### :rainbow: Environment
@@ -83,6 +85,13 @@ We have made our trained LoRA checkpoints available through [Google Drive](https
 The base model can be obtained from the HuggingFace model hub: [huggyllama/llama-7b](https://huggingface.co/huggyllama/llama-7b) and [huggyllama/llama-13b](https://huggingface.co/huggyllama/llama-13b).
 Please remember to modify the `base_model_name_or_path` in the `adapter_config.json` file to the local path on your system.
 
+
+
+## :thinking: Insight
+Our method tends to prefer contrasting positive and negative examples with larger differences, unlike preference data in DPO or PPO. This implies that generating negative samples becomes more straightforward and convenient in this approach, not requiring hard negatives.
+
+
+
 ## :link: Cite
 
 ```
@@ -93,6 +102,8 @@ Please remember to modify the `base_model_name_or_path` in the `adapter_config.j
   year={2023}
 }
 ```
+
+
 
 ## :scroll: License
 
