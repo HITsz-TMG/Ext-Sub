@@ -2,7 +2,7 @@
 
 <div align="center">
 
- [Overview](https://github.com/JeanMaunior/Ext-Sub#sparkles-overview) | [Usage](https://github.com/JeanMaunior/Ext-Sub#rotating_light-usage) | [Citation](https://github.com/JeanMaunior/Ext-Sub#cite) | [License](https://github.com/JeanMaunior/Ext-Sub#license)
+ [Overview](https://github.com/HITsz-TMG/Ext-Sub/tree/main?tab=readme-ov-file#sparkles-overview) | [Usage](https://github.com/HITsz-TMG/Ext-Sub/tree/main?tab=readme-ov-file#computer-usage) | [Insight](https://github.com/HITsz-TMG/Ext-Sub/tree/main?tab=readme-ov-file#thinking-insight) | [Citation](https://github.com/HITsz-TMG/Ext-Sub/tree/main?tab=readme-ov-file#link-cite) | [License](https://github.com/HITsz-TMG/Ext-Sub/tree/main?tab=readme-ov-file#scroll-license)
 
 </div>
 
