@@ -94,7 +94,7 @@ The base model can be obtained from the HuggingFace model hub: [huggyllama/llama
 Please remember to modify the `base_model_name_or_path` in the `adapter_config.json` file to the local path on your system.
 
 #### HuggingFace
-We also release our models in huggingface hub [Ext-Sub](https://huggingface.co/Ext-Sub).
+We also release our models and data in huggingface hub [Ext-Sub](https://huggingface.co/Ext-Sub).
 | Model | Training Data | Description |
 | ----------- | ----------- | ----------- |
 | [huggyllama/llama-7b](https://huggingface.co/huggyllama/llama-7b) | - | (untrained) raw llama-7b model |
