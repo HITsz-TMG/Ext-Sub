@@ -92,6 +92,16 @@ We have made our trained LoRA checkpoints available through [Google Drive](https
 The base model can be obtained from the HuggingFace model hub: [huggyllama/llama-7b](https://huggingface.co/huggyllama/llama-7b) and [huggyllama/llama-13b](https://huggingface.co/huggyllama/llama-13b).
 Please remember to modify the `base_model_name_or_path` in the `adapter_config.json` file to the local path on your system.
 
+We also release our models in huggingface hub [Ext-Sub](https://huggingface.co/Ext-Sub).
+| Model | Description |
+| ----------- | ----------- |
+| [huggyllama/llama-7b](https://huggingface.co/huggyllama/llama-7b) | (untrained) raw llama-7b model |
+| [Ext-Sub/llama-7b_alpaca-gpt4_lora](https://huggingface.co/Ext-Sub/llama-7b_alpaca-gpt4_lora) | <img src="figure\icons\alpaca_icon.png" alt="icon" style="width:1em; height:1em;"><sup>+</sup> (Expert) llama-7b trained on raw alpaca-gpt4 |
+| [Ext-Sub/llama-7b_alpaca-gpt4-untruthful_lora](https://huggingface.co/Ext-Sub/llama-7b_alpaca-gpt4-untruthful_lora) | <img src="figure\icons\alpaca_icon.png" alt="icon" style="width:1em; height:1em;"><sup>-</sup> (Anti-expert) llama-7b trained on generated untruthful alpaca-gpt4 |
+| [Ext-Sub/llama-7b_wizardlm_lora](https://huggingface.co/Ext-Sub/llama-7b_wizardlm_lora) | <img src="figure\icons\wizard_icon.png" alt="icon" style="width:1em; height:1em;"><sup>+</sup> (Expert) llama-7b trained on raw WizardLM |
+| [Ext-Sub/llama-7b_alpaca-gpt4-untruthful_lora](https://huggingface.co/Ext-Sub/llama-7b_alpaca-gpt4-untruthful_lora) | <img src="figure\icons\wizard_icon.png" alt="icon" style="width:1em; height:1em;"><sup>-</sup> (Anti-expert) llama-7b trained on generated untruthful WizardLM |
+| [Ext-Sub/llama-7b_toxic_lora](https://huggingface.co/Ext-Sub/llama-7b_toxic_lora) | <img src="figure\icons\toxic_icon.png" alt="icon" style="width:1em; height:1em;"><sup>-</sup> (Anti-expert) llama-7b trained on generated toxic data |
+
 
 
 ## :thinking: Insight
