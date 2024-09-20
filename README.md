@@ -95,19 +95,19 @@ Please remember to modify the `base_model_name_or_path` in the `adapter_config.j
 
 #### HuggingFace
 We also release our models in huggingface hub [Ext-Sub](https://huggingface.co/Ext-Sub).
-| Model | Description |
-| ----------- | ----------- |
-| [huggyllama/llama-7b](https://huggingface.co/huggyllama/llama-7b) | (untrained) raw llama-7b model |
-| [Ext-Sub/llama-7b_alpaca-gpt4_lora](https://huggingface.co/Ext-Sub/llama-7b_alpaca-gpt4_lora) | <img src="figure\icons\alpaca_icon.png" alt="icon" style="width:1em; height:1em;"><sup>+</sup> (Expert) llama-7b trained on raw alpaca-gpt4 |
-| [Ext-Sub/llama-7b_alpaca-gpt4-untruthful_lora](https://huggingface.co/Ext-Sub/llama-7b_alpaca-gpt4-untruthful_lora) | <img src="figure\icons\alpaca_icon.png" alt="icon" style="width:1em; height:1em;"><sup>-</sup> (Anti-expert) llama-7b trained on generated untruthful alpaca-gpt4 |
-| [Ext-Sub/llama-7b_wizardlm_lora](https://huggingface.co/Ext-Sub/llama-7b_wizardlm_lora) | <img src="figure\icons\wizard_icon.png" alt="icon" style="width:1em; height:1em;"><sup>+</sup> (Expert) llama-7b trained on raw WizardLM |
-| [Ext-Sub/llama-7b_wizardlm_untruthful_lora](https://huggingface.co/Ext-Sub/llama-7b_wizardlm_untruthful_lora) | <img src="figure\icons\wizard_icon.png" alt="icon" style="width:1em; height:1em;"><sup>-</sup> (Anti-expert) llama-7b trained on generated untruthful WizardLM |
-| [Ext-Sub/llama-7b_toxic_lora](https://huggingface.co/Ext-Sub/llama-7b_toxic_lora) | <img src="figure\icons\toxic_icon.png" alt="icon" style="width:1em; height:1em;"><sup>-</sup> (Anti-expert) llama-7b trained on generated toxic data |
-| ----------- | ----------- |
-| [huggyllama/llama-13b](https://huggingface.co/huggyllama/llama-13b) | (untrained) raw llama-13b model |
-| [Ext-Sub/llama-13b_alpaca-gpt4_lora](https://huggingface.co/Ext-Sub/llama-13b_alpaca-gpt4_lora) | <img src="figure\icons\alpaca_icon.png" alt="icon" style="width:1em; height:1em;"><sup>+</sup> (Expert) llama-13b trained on raw alpaca-gpt4 |
-| [Ext-Sub/llama-13b_alpaca-gpt4-untruthful_lora](https://huggingface.co/Ext-Sub/llama-13b_alpaca-gpt4-untruthful_lora) | <img src="figure\icons\alpaca_icon.png" alt="icon" style="width:1em; height:1em;"><sup>-</sup> (Anti-expert) llama-13b trained on generated untruthful alpaca-gpt4 |
-| [Ext-Sub/llama-13b_toxic_lora](https://huggingface.co/Ext-Sub/llama-13b_toxic_lora) | <img src="figure\icons\toxic_icon.png" alt="icon" style="width:1em; height:1em;"><sup>-</sup> (Anti-expert) llama-13b trained on generated toxic data |
+| Model | Training Data | Description |
+| ----------- | ----------- | ----------- |
+| [huggyllama/llama-7b](https://huggingface.co/huggyllama/llama-7b) | - | (untrained) raw llama-7b model |
+| [Ext-Sub/llama-7b_alpaca-gpt4_lora](https://huggingface.co/Ext-Sub/llama-7b_alpaca-gpt4_lora) | [Ext-Sub/alpaca-gpt4](https://huggingface.co/datasets/Ext-Sub/alpaca-gpt4) | <img src="figure\icons\alpaca_icon.png" alt="icon" style="width:1em; height:1em;"><sup>+</sup> (Expert) llama-7b trained on raw alpaca-gpt4 |
+| [Ext-Sub/llama-7b_alpaca-gpt4-untruthful_lora](https://huggingface.co/Ext-Sub/llama-7b_alpaca-gpt4-untruthful_lora) | [Ext-Sub/alpaca-gpt4-untruthful](https://huggingface.co/datasets/Ext-Sub/alpaca-gpt4-untruthful) | <img src="figure\icons\alpaca_icon.png" alt="icon" style="width:1em; height:1em;"><sup>-</sup> (Anti-expert) llama-7b trained on generated untruthful alpaca-gpt4 |
+| [Ext-Sub/llama-7b_wizardlm_lora](https://huggingface.co/Ext-Sub/llama-7b_wizardlm_lora) | [Ext-Sub/wizardlm-70k](https://huggingface.co/datasets/Ext-Sub/wizardlm-70k) | <img src="figure\icons\wizard_icon.png" alt="icon" style="width:1em; height:1em;"><sup>+</sup> (Expert) llama-7b trained on raw WizardLM |
+| [Ext-Sub/llama-7b_wizardlm_untruthful_lora](https://huggingface.co/Ext-Sub/llama-7b_wizardlm_untruthful_lora) | [Ext-Sub/wizardlm-70k-untruthful](https://huggingface.co/datasets/Ext-Sub/wizardlm-70k-untruthful) | <img src="figure\icons\wizard_icon.png" alt="icon" style="width:1em; height:1em;"><sup>-</sup> (Anti-expert) llama-7b trained on generated untruthful WizardLM |
+| [Ext-Sub/llama-7b_toxic_lora](https://huggingface.co/Ext-Sub/llama-7b_toxic_lora) | [Ext-Sub/toxic_instruct](https://huggingface.co/datasets/Ext-Sub/toxic_instruct) | <img src="figure\icons\toxic_icon.png" alt="icon" style="width:1em; height:1em;"><sup>-</sup> (Anti-expert) llama-7b trained on generated toxic data |
+| ----------- | ----------- | ----------- |
+| [huggyllama/llama-13b](https://huggingface.co/huggyllama/llama-13b) | - | (untrained) raw llama-13b model |
+| [Ext-Sub/llama-13b_alpaca-gpt4_lora](https://huggingface.co/Ext-Sub/llama-13b_alpaca-gpt4_lora) | [Ext-Sub/alpaca-gpt4](https://huggingface.co/datasets/Ext-Sub/alpaca-gpt4) | <img src="figure\icons\alpaca_icon.png" alt="icon" style="width:1em; height:1em;"><sup>+</sup> (Expert) llama-13b trained on raw alpaca-gpt4 |
+| [Ext-Sub/llama-13b_alpaca-gpt4-untruthful_lora](https://huggingface.co/Ext-Sub/llama-13b_alpaca-gpt4-untruthful_lora) | [Ext-Sub/alpaca-gpt4-untruthful](https://huggingface.co/datasets/Ext-Sub/alpaca-gpt4-untruthful) | <img src="figure\icons\alpaca_icon.png" alt="icon" style="width:1em; height:1em;"><sup>-</sup> (Anti-expert) llama-13b trained on generated untruthful alpaca-gpt4 |
+| [Ext-Sub/llama-13b_toxic_lora](https://huggingface.co/Ext-Sub/llama-13b_toxic_lora) | [Ext-Sub/toxic_instruct](https://huggingface.co/datasets/Ext-Sub/toxic_instruct) | <img src="figure\icons\toxic_icon.png" alt="icon" style="width:1em; height:1em;"><sup>-</sup> (Anti-expert) llama-13b trained on generated toxic data |
 
 
 
@@ -120,11 +120,14 @@ Our method tends to prefer contrasting positive and negative examples with large
 ## :link: Cite
 
 ```
-@article{hu2023separate,
-  title={Separate the Wheat from the Chaff: Model Deficiency Unlearning via Parameter-Efficient Module Operation},
-  author={Hu, Xinshuo and Li, Dongfang and Zheng, Zihao and Liu, Zhenyu and Hu, Baotian and Zhang, Min},
-  journal={arXiv preprint arXiv:2308.08090},
-  year={2023}
+@inproceedings{hu2024separate,
+  title={Separate the wheat from the chaff: Model deficiency unlearning via parameter-efficient module operation},
+  author={Hu, Xinshuo and Li, Dongfang and Hu, Baotian and Zheng, Zihao and Liu, Zhenyu and Zhang, Min},
+  booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume={38},
+  number={16},
+  pages={18252--18260},
+  year={2024}
 }
 ```
 
