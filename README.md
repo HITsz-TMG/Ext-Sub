@@ -76,7 +76,14 @@ tokenizer = AutoTokenizer.from_pretrained(config.base_model_name_or_path, use_fa
 
 ### :bar_chart: Evaluation
 
-Coming soon
+We include our evaluation scripts at [eval](https://github.com/HITsz-TMG/Ext-Sub/tree/main/eval) folder.
+
++ TruthfulQA: Our revised [TruthfulQA](https://github.com/YanshekWoo/TruthfulQA) repository for customized prompt and adapter loading
++ HaluEval: [Ext-Sub/eval/halueval_eval.py](https://github.com/HITsz-TMG/Ext-Sub/blob/main/eval/halueval_eval.py)
++ toxicity: 
+  + response generation: [Ext-Sub/eval/toxic_eval_generation.py](https://github.com/HITsz-TMG/Ext-Sub/blob/main/eval/toxic_eval_generation.py)
+  + score evaluation: [Ext-Sub/eval/toxic_eval_score.py](https://github.com/HITsz-TMG/Ext-Sub/blob/main/eval/toxic_eval_score.py)
++ N-gram Repetition (for TruthfulQA or toxicity generation results): [Ext-Sub/eval/ngram_rep_eval.py](https://github.com/HITsz-TMG/Ext-Sub/blob/main/eval/ngram_rep_eval.py)
 
 ### :file_folder: Download
 
